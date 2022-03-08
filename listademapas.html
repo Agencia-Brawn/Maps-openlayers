@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de mapas</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.13.0/css/ol.css" type="text/css">
+  <style>
+    .elemento-mapa {
+      height: 400px;
+      width: 400px;
+      margin-left: 10px;
+      float: left;
+    }
+    .ol-popup {
+      font-family: 'Lucida Grande', Verdana, Geneva, Lucida, Arial, Helvetica, sans-serif !important;
+      font-size: 12px;
+      position: absolute;
+      background-color: white;
+      -webkit-filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+      filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid #cccccc;
+      bottom: 12px;
+      left: -50px;
+      min-width: 80px;
+    }
+  </style>
+  <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js"></script>
+</head>
+<body>
+
+  <div class="elemento-mapa" data-longitude="-48.47215444" data-latitude="-1.45347799" data-nome="Ponto 1"></div>
+  <div class="elemento-mapa" data-longitude="-48.47215444" data-latitude="-1.46347599" data-nome="Ponto 2"></div>
+  <div class="elemento-mapa" data-longitude="-48.46215444" data-latitude="-1.46347599" data-nome="Ponto 3"></div>
+
+<script type="text/javascript">
+  divs = document.getElementsByClassName('elemento-mapa'); //Array dos elemetos de classe elemento-mapa
+  // ForEach para renderizar os mapas na tela e seus elementos
+  Array.prototype.forEach.call(divs, elemento => {
+    //View do map
+    var map = new ol.Map({
+        target: elemento,
+        layers: [
+          new ol.layer.Tile({source: new ol.source.OSM() })
+        ],
+        view: new ol.View({
+          center: ol.proj.fromLonLat([
+            parseFloat(elemento.dataset.longitude), 
+            parseFloat(elemento.dataset.latitude)
+          ]),
+          zoom: 15
+        })
+      });
+
+    // Ponto azul no mapa
+    var layer = new ol.layer.Vector({
+      source: new ol.source.Vector({
+        features: [
+          new ol.Feature({
+            geometry: new ol.geom.Point(ol.proj.fromLonLat([
+            parseFloat(elemento.dataset.longitude), 
+            parseFloat(elemento.dataset.latitude)
+            ]))
+          })
+        ]
+      })
+    });
+
+    map.addLayer(layer); // ponto azul posicionado no mapa
+
+    var container = document.createElement("div"); // cria uma div para ser o popup
+    container.classList.add("ol-popup"); // adicionando uma classe
+    var content = document.createElement("div"); // cria uma div para o conteudo do popup
+    container.appendChild(content); // adiciona a div content na div container 
+
+    content.innerHTML = `<b>${elemento.dataset.nome}!</b>.`; // adiciona o dados nome a div content
+
+    // Overlay elemento dentro do mapa
+    var overlay = new ol.Overlay({
+      element: container,
+      position: ol.proj.fromLonLat([
+            parseFloat(elemento.dataset.longitude), 
+            parseFloat(elemento.dataset.latitude)]),
+      autoPanAnimation: {
+        duration: 250
+      }
+    });
+
+    map.addOverlay(overlay);   
+
+  });  
+</script>
+</body>
+</html>
